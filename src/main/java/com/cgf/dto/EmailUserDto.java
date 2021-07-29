@@ -4,9 +4,9 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.Email;
-import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
 
 /**
@@ -18,23 +18,23 @@ import java.io.Serializable;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@ApiModel(value="用户注册", description="")
+@ApiModel(value="Users扩展对象", description="")
 public class EmailUserDto implements Serializable{
-    @ApiModelProperty(name = "用户名")
+    @ApiModelProperty(value = "用户名")
     @NotEmpty
     private String username;
 
-    @ApiModelProperty(name = "密码")
+    @ApiModelProperty(value = "密码")
     @NotEmpty
     private String password;
 
-    @ApiModelProperty(name = "邮箱地址")
+    @ApiModelProperty(value = "邮箱地址")
     @Email
     private String email;
 
-    @ApiModelProperty(name = "期望工作职位")
+    @ApiModelProperty(value = "期望工作职位")
     private Integer[] expectPosition;
 
-    @ApiModelProperty(name = "验证码")
+    @ApiModelProperty(value = "验证码")
     private String code;
 }

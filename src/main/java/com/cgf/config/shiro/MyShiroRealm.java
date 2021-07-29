@@ -87,7 +87,7 @@ public class MyShiroRealm extends AuthorizingRealm {
         } catch (Exception e) {
             log.error("", e);
         }
-        if (user.getStatus() == 2) {
+        if (user.getState() == 2) {
             throw new DisabledAccountException();
         } else if (!curPwd.equals(user.getPassword())) {//判断是否跟数据库系统
             throw new AuthenticationException();

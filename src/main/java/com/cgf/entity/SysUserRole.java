@@ -12,6 +12,10 @@ import lombok.experimental.Accessors;
 import java.io.Serializable;
 
 /**
+ * <p>
+ * 
+ * </p>
+ *
  * @author cgf
  * @since 2021-05-09
  */
@@ -27,10 +31,10 @@ public class SysUserRole implements Serializable {
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
-    @TableField("user_id")
+    @TableField("userId")
     private Integer userId;
 
-    @TableField("role_id")
+    @TableField("roleId")
     private Integer roleId;
 
 

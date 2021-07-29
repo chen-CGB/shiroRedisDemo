@@ -1,5 +1,6 @@
 package com.cgf.entity;
 
+import cn.afterturn.easypoi.excel.annotation.Excel;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -9,10 +10,10 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.hibernate.validator.constraints.Email;
+import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
 import java.sql.Timestamp;
 
@@ -34,34 +35,36 @@ public class SysUser implements Serializable{
   private static final long serialVersionUID = 1L;
 
   @ApiModelProperty(value = "主键")
-  @TableId(value = "user_id", type = IdType.AUTO)
+  @TableId(value = "userId", type = IdType.AUTO)
+  @Excel(name = "userId", orderNum = "0", width = 15)
   private Integer userId;
 
 
   @ApiModelProperty(value = "用户名")
-  @TableField("username")
+  @TableField("user_name")
   @NotEmpty
-  private String username;
-
-
-  @ApiModelProperty(value = "姓名")
-  @TableField("nickname")
-  private String nickname;
+  @Excel(name = "userId", orderNum = "0", width = 15)
+  private String userName;
 
   @ApiModelProperty(value = "邮箱")
   @Email
+  @Excel(name = "邮箱", orderNum = "1", width = 20)
   private String email;
 
   @ApiModelProperty(value = "密码")
+  @NotEmpty
+  @Excel(name = "密码", orderNum = "3", width = 15)
   private String password;
 
   @ApiModelProperty(value = "加密盐")
   private String salt;
 
   @ApiModelProperty(value = "性别（0女 1男）")
+  @Excel(name = "性别", orderNum = "4", width = 15)
   private Integer sex;
 
   @ApiModelProperty(value = "所读学校")
+  @Excel(name = "所读学校", orderNum = "5", width = 15)
   private String school;
 
   @ApiModelProperty(value = "所读专业")
@@ -78,7 +81,7 @@ public class SysUser implements Serializable{
   //private String expectPosition;
 
   @ApiModelProperty(value = "账号状态（0正常1异常2注销）")
-  private Integer status;
+  private Integer state;
 
   @DateTimeFormat(pattern="yyyy")
   @ApiModelProperty(value = "毕业年份")
@@ -94,13 +97,8 @@ public class SysUser implements Serializable{
   private Timestamp updateTime;
 
   @ApiModelProperty(value = "修改人用户ID")
-  @TableField("updater")
-  private Integer updater;
-
-  @ApiModelProperty(value = "修改人用户ID")
-  @TableField("creator")
-  private Integer creator;
-
+  @TableField("update_operator")
+  private Long updateOperator;
 
   @ApiModelProperty(value = "简历地址")
   private String resume;
@@ -120,6 +118,6 @@ public class SysUser implements Serializable{
    * @return
    */
   public String getCredentialsSalt() {
-    return this.username + this.salt;
+    return this.userName + this.salt;
   }
 }

@@ -28,23 +28,26 @@ public class SysPermission implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @TableId(value = "permission_id", type = IdType.AUTO)
+    @TableId(value = "permissionId", type = IdType.AUTO)
     private Integer permissionId;
 
     private Boolean available;
 
-    @TableField("menu_code")
-    private String menuCode;
+    @TableField("parentId")
+    private Long parentId;
 
-    @TableField("menu_name")
-    private String menuName;
+    @TableField("parentIds")
+    private String parentIds;
 
     private String permission;
 
-    @TableField("permission_name")
+    @TableField("permissionName")
     private String permissionName;
 
-    @TableField("resource_type")
+    @TableField("resourceType")
     private String resourceType;
+
+    private String url;
+
 
 }

@@ -8,10 +8,13 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.crazycake.shiro.RedisSessionDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * <p>
@@ -28,6 +31,7 @@ public class SysUserController {
     @Autowired
     SysUserService userService;
 
+    RedisSessionDAO redisSessionDAO;
 
     @ApiOperation(value = "修改用户邮箱")
     @ApiImplicitParams({
@@ -35,9 +39,16 @@ public class SysUserController {
             @ApiImplicitParam(name = "code", value = "验证码", required = true, dataType = "String")
     })
     @PostMapping("/email")
-    @RequiresPermissions("user:update")
     public Response updateUserEmail(@RequestParam String email, @RequestParam String code){
         return userService.updateUserEmail(email, code);
+    }
+
+    @ApiOperation(value = "当前登录用户数", response = Response.class)
+    @GetMapping("/userCount")
+    public Response loginUserCount() {
+        Set<String> hosts = new HashSet<>();
+        redisSessionDAO.getActiveSessions().forEach(session -> hosts.add(session.getHost()));
+        return Response.success().data(String.valueOf(hosts.size()));
     }
 
     @ApiOperation(value = "用户列表")
@@ -50,29 +61,20 @@ public class SysUserController {
 
     /**
      * 用户添加;
+     * @return
      */
     @PostMapping("/userAdd")
-    @RequiresPermissions("user:add")
+    @RequiresPermissions("user:add")//权限管理;
     public String userInfoAdd(){
         return "userAdd";
     }
 
-
-
-    /**
-     * 用户修改;
-     */
-    @PostMapping("/userEdit")
-    //@RequiresPermissions("user:edit")
-    public String userEdit(){
-        return "userEdit";
-    }
-
     /**
      * 用户删除;
+     * @return
      */
     @DeleteMapping("/userDel")
-    @RequiresPermissions("user:del")
+    @RequiresPermissions("user:del")//权限管理;
     public String userDel(){
         return "userDel";
     }

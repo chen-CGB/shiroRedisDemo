@@ -1,18 +1,13 @@
 package com.cgf.vo;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.cgf.entity.SysUser;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.hibernate.validator.constraints.NotEmpty;
 
-import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
-import java.sql.Timestamp;
-import java.util.List;
-import java.util.Set;
 
 /**
  * <p>
@@ -23,33 +18,40 @@ import java.util.Set;
  * @since 2020-12-06
  */
 @Data
+@EqualsAndHashCode(callSuper = false)
+@Builder
 @ApiModel(value="Users扩展对象", description="")
 public class UserVo implements Serializable{
 
-    @ApiModelProperty(value = "用户id")
-    private String userId;
+
+    @ApiModelProperty(value = "主键")
+    private Integer userId;
 
     @ApiModelProperty(value = "用户名")
-    private String username;
+    private String userName;
 
-    @ApiModelProperty(value = "姓名")
-    private String nickname;
+    @ApiModelProperty(value = "邮箱")
+    private String email;
 
-    @ApiModelProperty(value = "上一次登录时间")
-    private Timestamp lastLoginTime;
+    @ApiModelProperty(value = "性别（0女 1男）")
+    private Integer sex;
 
-    @ApiModelProperty(value = "上一次登录IP")
-    private String lastLoginIp;
+    @ApiModelProperty(value = "所读学校")
+    private String school;
+
+    @ApiModelProperty(value = "所读专业")
+    private String major;
+
+    @ApiModelProperty(value = "学历")
+    private Integer education;
+
+    @ApiModelProperty(value = "所在城市")
+    private String city;
+
+    @ApiModelProperty(value = "账号状态（0正常1异常2注销）")
+    private Integer state;
 
     @ApiModelProperty(value = "token")
+    @NotEmpty
     private String token;
-
-    @ApiModelProperty(value = "角色列表")
-    private List<Integer> roleIds;
-
-    @ApiModelProperty(value = "目录列表")
-    private Set<String> menuList;
-
-    @ApiModelProperty(value = "权限列表")
-    private Set<String> permissionList;
 }

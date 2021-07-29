@@ -31,10 +31,10 @@ public class SysRolePermission implements Serializable {
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
-    @TableField("permission_id")
+    @TableField("permissionId")
     private Integer permissionId;
 
-    @TableField("role_id")
+    @TableField("roleId")
     private Integer roleId;
 
 

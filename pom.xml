@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.2.5.RELEASE</version>
+		<version>2.2.0.RELEASE</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.cgf</groupId>
@@ -18,11 +18,11 @@
 		<java.version>8</java.version>
 		<druid.version>1.1.6</druid.version>
 		<commons-collections4.version>4.1</commons-collections4.version>
-		<mybatis-plus.version>3.4.1</mybatis-plus.version>
-		<shiro-spring.version>1.7.0</shiro-spring.version>
+		<mybatis-plus.version>3.2.0</mybatis-plus.version>
+		<shiro-spring.version>1.6.0</shiro-spring.version>
+		<swagger.version>2.9.2</swagger.version>
 		<autoload-cache.version>5.1</autoload-cache.version>
-		<shiro-redis.version>3.3.1</shiro-redis.version>
-		<swagger.version>3.0.0</swagger.version>
+		<shiro-redis.version>3.1.0</shiro-redis.version>
 	</properties>
 
 	<dependencies>
@@ -47,17 +47,11 @@
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 
+		<!--excel操作-->
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-thymeleaf</artifactId>
-		</dependency>
-
-
-		<!--swagger-->
-		<dependency>
-			<groupId>io.springfox</groupId>
-			<artifactId>springfox-boot-starter</artifactId>
-			<version>${swagger.version}</version>
+			<groupId>cn.afterturn</groupId>
+			<artifactId>easypoi-spring-boot-starter</artifactId>
+			<version>3.3.0</version>
 		</dependency>
 
 		<!--mybatis-plus-->
@@ -72,17 +66,18 @@
 			<version>${mybatis-plus.version}</version>
 		</dependency>
 
-		<!--工具类-->
+		<!--Velocity引擎-->
 		<dependency>
-			<groupId>cn.hutool</groupId>
-			<artifactId>hutool-core</artifactId>
-			<version>4.6.1</version>
+			<groupId>org.apache.velocity</groupId>
+			<artifactId>velocity-engine-core</artifactId>
+			<version>2.2</version>
 		</dependency>
 
+		<!--    postgresql数据库-->
 		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-			<scope>runtime</scope>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>42.1.4</version>
 		</dependency>
 
 		<dependency>
@@ -91,12 +86,7 @@
 			<optional>true</optional>
 		</dependency>
 
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-mail</artifactId>
-		</dependency>
-
-		<!-- log4j日志 -->
+		<!-- https://mvnrepository.com/artifact/log4j/log4j -->
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
@@ -117,6 +107,15 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-thymeleaf</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 		</dependency>
@@ -133,6 +132,12 @@
 			<version>${shiro-spring.version}</version>
 		</dependency>
 
+		<!--序列化hessian-->
+		<dependency>
+			<groupId>com.caucho</groupId>
+			<artifactId>hessian</artifactId>
+			<version>4.0.38</version>
+		</dependency>
 		<dependency>
 			<groupId>com.github.qiujiayu</groupId>
 			<artifactId>autoload-cache</artifactId>
@@ -143,21 +148,33 @@
 		<dependency>
 			<groupId>org.crazycake</groupId>
 			<artifactId>shiro-redis</artifactId>
-			<version>${shiro-redis.version}</version>
-			<!--<exclusions>-->
-			<!--	<exclusion>-->
-			<!--		<artifactId>guava</artifactId>-->
-			<!--		<groupId>com.google.guava</groupId>-->
-			<!--	</exclusion>-->
-			<!--	<exclusion>-->
-			<!--		<artifactId>commons-beanutils</artifactId>-->
-			<!--		<groupId>commons-beanutils</groupId>-->
-			<!--	</exclusion>-->
-			<!--	<exclusion>-->
-			<!--		<artifactId>shiro-core</artifactId>-->
-			<!--		<groupId>org.apache.shiro</groupId>-->
-			<!--	</exclusion>-->
-			<!--</exclusions>-->
+			<version>3.1.0</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>guava</artifactId>
+					<groupId>com.google.guava</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>commons-beanutils</artifactId>
+					<groupId>commons-beanutils</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>shiro-core</artifactId>
+					<groupId>org.apache.shiro</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<!-- swagger-->
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger2</artifactId>
+			<version>${swagger.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger-ui</artifactId>
+			<version>${swagger.version}</version>
 		</dependency>
 
 		<dependency>
@@ -165,14 +182,34 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
+			<!--<exclusions>-->
+				<!--<exclusion>-->
+					<!--<groupId>org.junit.vintage</groupId>-->
+					<!--<artifactId>junit-vintage-engine</artifactId>-->
+				<!--</exclusion>-->
+			<!--</exclusions>-->
 		</dependency>
 	</dependencies>
 
 	<build>
+		<finalName>shiroRedisDemo</finalName>
 		<plugins>
 			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.1</version>
+				<configuration>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>3.0.0-M1</version>
+				<configuration>
+					<skipTests>true</skipTests>    <!--默认关掉单元测试 -->
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

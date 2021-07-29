@@ -22,10 +22,10 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * @Description //TODO 加密工具类
- * @Author cgf
- * @Date 2021/1/17 16:41
+/***
+ * @author cgf
+ * @Description 加密工具类
+ * @date 2021/4/29
  */
 public class EncryptUtil {
 

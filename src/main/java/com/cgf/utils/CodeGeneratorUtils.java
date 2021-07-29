@@ -15,9 +15,19 @@ import java.util.List;
 import java.util.Scanner;
 
 /**
- * @Description //TODO 代码生成器
- * @Author cgf
- * @Date 2021/1/17 16:41
+ * 代码生成器
+ * <br/>
+ * AutoGenerator 是 MyBatis-Plus 的代码生成器，通过 AutoGenerator 可以快速生成 Entity、Mapper、Mapper XML、Service、Controller 等各个模块的代码，极大的提升了开发效率。
+ * <br/>
+ * 详见：https://mp.baomidou.com/guide/generator.html
+ * <p>
+ * 创建人：LeiGQ <br>
+ * 创建时间：2019-06-14 11:03 <br>
+ * <p>
+ * 修改人： <br>
+ * 修改时间： <br>
+ * 修改备注： <br>
+ * </p>
  */
 public class CodeGeneratorUtils {
 

@@ -1,6 +1,5 @@
 package com.cgf.config.shiro;
 
-import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.session.mgt.eis.JavaUuidSessionIdGenerator;
 import org.apache.shiro.spring.LifecycleBeanPostProcessor;
@@ -16,9 +15,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPoolConfig;
 
+import javax.servlet.Filter;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -29,32 +27,21 @@ import java.util.Map;
  */
 @Configuration
 public class ShiroConfig {
-    //最大连接数
-    @Value("${redis.pool.maxTotal:100}")
-    private Integer maxTotal;
-
-    //最大空闲连接数
-    @Value("${redis.pool.maxIdle:5}")
-    private Integer maxIdle;
-
-    //最小空闲连接数
-    @Value("${redis.pool.minIdle:5}")
-    private Integer minIdle;
-
-    @Value("${redis.shard.timeout:5000}")
-    private Integer timeout;
 
     @Value("${redis.host}")
-    private String host;
+    private String redisHost;
+
+    @Value("${redis.port}")
+    private String redisPort;
 
     @Value("${redis.password}")
     private String password;
 
-    @Value("${redis.pool.maxWaitMillis:60000}")
-    private Integer maxWaitMillis;
+    @Value("${redis.database}")
+    private int redisDatabase;
 
-    @Value("${redis.port}")
-    private Integer port;
+    //@Value("${session.expire}")
+    //private int expire;
     /**
      * @Author cgf
      * @Description //TODO 配置shiro过滤
@@ -65,6 +52,11 @@ public class ShiroConfig {
     public ShiroFilterFactoryBean shiroFilter(SecurityManager securityManager){
         ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
         shiroFilterFactoryBean.setSecurityManager(securityManager);
+        //自定义拦截器
+        Map<String, Filter> filterMap = new LinkedHashMap<>();
+        filterMap.put("authc", new SimpleAuthFilter());
+        filterMap.put("mylogout", new MyLogoutFilter());
+        shiroFilterFactoryBean.setFilters(filterMap);
         /*
          * anon:所有url都都可以匿名访问，authc:所有url都必须认证通过才可以访问;
          * 过滤链定义，从上向下顺序执行，authc 应放在 anon 下面
@@ -77,22 +69,21 @@ public class ShiroConfig {
         filterChainDefinitionMap.put("/js/**", "anon");
         filterChainDefinitionMap.put("/html/**", "anon");
 
-
-        //swagger接口权限 开放
-        filterChainDefinitionMap.put("/swagger-ui.html", "anon");
-        filterChainDefinitionMap.put("/webjars/**", "anon");
-        filterChainDefinitionMap.put("/v2/**", "anon");
-        filterChainDefinitionMap.put("/swagger-resources/**", "anon");
-
         filterChainDefinitionMap.put("*.html", "anon");
         filterChainDefinitionMap.put("/static/**", "anon");
+        filterChainDefinitionMap.put("/doc.html", "anon");
+        filterChainDefinitionMap.put("/swagger-resources/**", "anon");
+        filterChainDefinitionMap.put("/v2/api-docs", "anon");
+        filterChainDefinitionMap.put("/v2/api-docs-ext", "anon");
+        filterChainDefinitionMap.put("/webjars/**", "anon");
         filterChainDefinitionMap.put("/druid/**", "anon");
         filterChainDefinitionMap.put("/favicon.ico", "anon");
         filterChainDefinitionMap.put("/captcha.jpg", "anon");
 
         filterChainDefinitionMap.put("/auth/**","anon");
         // 所有url都必须认证通过才可以访问
-        //filterChainDefinitionMap.put("/**", "authc");
+//        filterChainDefinitionMap.put("/**", "authc");
+        filterChainDefinitionMap.put("/**", "anon");
         
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
         return shiroFilterFactoryBean;
@@ -121,15 +112,15 @@ public class ShiroConfig {
      * @Date 21:18 2021/5/9
      * @Param []
      **/
-    @Bean
-    public HashedCredentialsMatcher hashedCredentialsMatcher() {
-        HashedCredentialsMatcher hashedCredentialsMatcher = new HashedCredentialsMatcher();
-        // 散列算法:这里使用MD5算法;
-        hashedCredentialsMatcher.setHashAlgorithmName("md5");
-        // 散列的次数，比如散列两次，相当于 md5(md5(""));
-        hashedCredentialsMatcher.setHashIterations(2);
-        return hashedCredentialsMatcher;
-    }
+    //@Bean
+    //public HashedCredentialsMatcher hashedCredentialsMatcher() {
+    //    HashedCredentialsMatcher hashedCredentialsMatcher = new HashedCredentialsMatcher();
+    //    // 散列算法:这里使用MD5算法;
+    //    hashedCredentialsMatcher.setHashAlgorithmName("md5");
+    //    // 散列的次数，比如散列两次，相当于 md5(md5(""));
+    //    hashedCredentialsMatcher.setHashIterations(2);
+    //    return hashedCredentialsMatcher;
+    //}
     
 
     /**
@@ -151,7 +142,6 @@ public class ShiroConfig {
      * @Date 21:36 2021/5/9
      * @Param []
      **/
-    @Bean
     public RedisCacheManager cacheManager(){
         RedisCacheManager redisCacheManager = new RedisCacheManager();
         redisCacheManager.setRedisManager(redisManager());
@@ -166,21 +156,15 @@ public class ShiroConfig {
      * @Date 21:36 2021/5/9
      * @Param []
      **/
-    @Bean
     public RedisManager redisManager() {
         RedisManager redisManager = new RedisManager();
-        JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
-        System.out.println(minIdle + " " + maxIdle + " " + maxWaitMillis + " " +maxTotal);
-        jedisPoolConfig.setMaxTotal(maxTotal);
-        jedisPoolConfig.setMaxWaitMillis(maxWaitMillis);
-        jedisPoolConfig.setMaxIdle(maxIdle);
-        jedisPoolConfig.setMinIdle(minIdle);
-        JedisPool jedisPool = new JedisPool(jedisPoolConfig, host, port, timeout);
-        redisManager.setJedisPool(jedisPool);
-        if (org.apache.commons.lang3.StringUtils.isNotBlank(password)) {
+        redisManager.setHost(redisHost);
+        if(!password.isEmpty()){
             redisManager.setPassword(password);
         }
-        //        System.out.println(env);
+        redisManager.setPort(Integer.parseInt(redisPort));
+        redisManager.setDatabase(redisDatabase);
+        redisManager.setTimeout(2000);
         return redisManager;
     }
 

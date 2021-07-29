@@ -2,9 +2,14 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.cgf.mapper.SysPermissionMapper">
     <select id="findRolePermissions" resultType="com.cgf.entity.SysPermission">
-        SELECT p.*  FROM `sys_role` r
-            LEFT JOIN `sys_role_permission` rp on r.`role_id` = rp.`role_id`
-            LEFT JOIN `sys_permission` p on p.`permission_id` = rp.`permission_id`
-        WHERE r.`role_id` =  #{roleId};
+        SELECT
+          p.*
+        FROM
+          `sys_role` AS r,
+          `sys_permission` AS p,
+          `sys_role_permission` AS rp
+        WHERE r.`roleId` = rp.`roleId`
+          AND p.`permissionId` = rp.`permissionId`
+          AND r.`roleId` = #{roleId};
     </select>
 </mapper>

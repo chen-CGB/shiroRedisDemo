@@ -7,13 +7,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.ViewResolver;
-import springfox.documentation.oas.annotations.EnableOpenApi;
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import java.util.Locale;
 
 @SpringBootApplication
 @MapperScan("com.cgf.mapper")
-@EnableOpenApi
+@EnableSwagger2
 @EnableAsync
 public class ProjectApplication {
 

@@ -3,27 +3,26 @@ package com.cgf.controller;
 import com.cgf.common.Response;
 import com.cgf.dto.EmailUserDto;
 import com.cgf.dto.LoginUser;
-import com.cgf.dto.UserEditDto;
 import com.cgf.entity.SysUser;
-import com.cgf.service.LoginService;
+import com.cgf.service.SysUserService;
 import com.cgf.utils.EncryptUtil;
-import com.cgf.utils.IpUtils;
-import com.cgf.vo.UserVo;
+import com.cgf.utils.ExcelUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import org.crazycake.shiro.RedisSessionDAO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.Email;
-import java.util.HashSet;
+import java.sql.Timestamp;
+import java.util.Date;
+import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/auth")
@@ -33,25 +32,24 @@ import java.util.Set;
 public class LoginController {
 
     @Autowired
-    LoginService userService;
-
-    @Autowired
-    RedisSessionDAO redisSessionDAO;
+    SysUserService userService;
 
     @ApiOperation(value = "登录请求", notes = "根据用户名称和密码登录")
     @PostMapping("/login")
-    public UserVo login(HttpServletRequest request, @RequestBody  @Valid LoginUser loginUser){
+    public Response login(@RequestBody  @Valid LoginUser loginUser){
         String userName = loginUser.getUsername();
         String password = loginUser.getPassword();
-        String ipAddress = IpUtils.getIpAddr(request);
-        log.info("用户登录,用户名:"+userName+",密码:"+password+"登录IP地址为："+ipAddress);
-        UserVo user = userService.login(userName, password);
-        SysUser sysUser = new SysUser();
-        BeanUtils.copyProperties(user,sysUser);
-        userService.saveLastLogin(sysUser,ipAddress);
-        return user;
+        log.info("用户登录,用户名:"+userName+",密码:"+password);
+        return Response.success().data(userService.login(userName, password));
     }
 
+
+    @GetMapping("export")
+    public ResponseEntity<Void> export(HttpServletResponse response) throws Exception {
+        List<SysUser> exportData = userService.list();
+        ExcelUtils.exportExcel("用户列表",SysUser.class,exportData,response);
+        return ResponseEntity.ok().build();
+    }
 
     @ApiOperation(value = "注销")
     @PostMapping("/logout")
@@ -63,7 +61,7 @@ public class LoginController {
     /**
      * 发送验证码到指定邮箱
      */
-    @ApiOperation(value = "发送验证码",notes = "时间为五分钟后过期")
+    @ApiOperation(value = "发送验证码",notes = "时间为60s后过期")
     @ApiImplicitParam(name = "email", value = "邮箱地址", required = true, dataType = "Email")
     @PostMapping("/sendCode")
     public Response sendCode(@Email @RequestParam("email") String receiver) {
@@ -73,19 +71,22 @@ public class LoginController {
     /**
      * 注册用户
      */
-    @ApiOperation(value = "注册用户")
+    @ApiOperation(value = "添加用户")
+    @ApiImplicitParam(name = "verCode", value = "验证码", required = true, dataType = "String")
     @PostMapping("/")
-    public Response register(@RequestBody EmailUserDto user) {
+    public Response addUser(@RequestBody EmailUserDto user) {
         if (!Objects.isNull(userService.findUserByEmail(user.getEmail()))) {
             return Response.failed("邮箱已被注册！！！");
         }
-        UserEditDto sysUser = new UserEditDto();
-        BeanUtils.copyProperties(user, sysUser);
+        SysUser sysUser = new SysUser();
+        BeanUtils.copyProperties(sysUser, user);
         addDeal(sysUser);
+        sysUser.setCreateTime(new Timestamp(new Date().getTime()));
+        sysUser.setState(0);
         return userService.addUser(sysUser,user.getCode());
     }
 
-    private void addDeal(UserEditDto user) {
+    private void addDeal(SysUser user) {
         String salt = EncryptUtil.createSalt();
         String pwd = "";
         try {
@@ -96,16 +97,5 @@ public class LoginController {
         user.setPassword(pwd);
         user.setSalt(salt);
     }
-
-
-    @ApiOperation(value = "当前登录用户数", response = Response.class)
-    @GetMapping("/userCount")
-    public Response loginUserCount() {
-        Set<String> hosts = new HashSet<>();
-        log.info(redisSessionDAO.getActiveSessions().toString());
-        redisSessionDAO.getActiveSessions().forEach(session -> hosts.add(session.getHost()));
-        return Response.success().data(String.valueOf(hosts.size()));
-    }
-
 
 }

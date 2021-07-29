@@ -1,9 +1,9 @@
 package com.cgf.utils;
 
+import com.cgf.config.redis.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.scheduling.annotation.Async;
@@ -26,11 +26,6 @@ public class EmailCodeUtils {
     @Autowired
     private JavaMailSenderImpl mailSender;
 
-    @Autowired
-    private RedisTemplate redisTemplate;
-
-    private static String EMAIL_KEY = "email:";
-
     /**
      * 发送人
      */
@@ -43,9 +38,9 @@ public class EmailCodeUtils {
     private String code;
 
     /**
-     * 过期时间,默认五分钟
+     * 过期时间,默认六十秒
      */
-    private Long timeout = 5*60*1000L;
+    private Long timeout = 60*1000L;
 
     private static final String SYMBOLS = "0123456789abcdefghijklmnopqrstuvwxyz" + "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     /**
@@ -73,8 +68,7 @@ public class EmailCodeUtils {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setSubject("验证码");//设置邮件标题
         code = generateVerCode();
-        //存储到redis
-        redisTemplate.opsForValue().set(EMAIL_KEY+receiver, code, timeout, TimeUnit.MILLISECONDS);
+        RedisUtil.set(sender, code, timeout, TimeUnit.MILLISECONDS);
         log.warn("验证码为"+code);
         message.setText("尊敬的用户,您好:\n"
                 + "\n本次请求的邮件验证码为:" + code + ",本验证码5分钟内有效，请及时输入。（请勿泄露此验证码）\n"
@@ -84,11 +78,11 @@ public class EmailCodeUtils {
         mailSender.send(message);//发送邮件
     }
 
-    public boolean isExpired(String receiver) {
-        return Objects.isNull(redisTemplate.opsForValue().get(EMAIL_KEY+receiver));
+    public boolean isExpired(String sender) {
+        return Objects.isNull(RedisUtil.get(sender));
     }
 
-    public String getCode(String receiver) {
-        return (String) redisTemplate.opsForValue().get(EMAIL_KEY+receiver);
+    public String getCode(String sender) {
+        return (String) RedisUtil.get(sender);
     }
 }
